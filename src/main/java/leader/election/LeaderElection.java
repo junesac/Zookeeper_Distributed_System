@@ -104,6 +104,8 @@ public class LeaderElection implements Watcher {
 		 * case NodeChildrenChanged: System.out.println(TARGET_ZNODE +
 		 * " children changed"); break;
 		 */
+		default:
+			break;
 
 		}
 
