@@ -10,6 +10,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 
 public class LeaderElection implements Watcher {
 
@@ -20,18 +21,31 @@ public class LeaderElection implements Watcher {
 
 	private static final String ELECTION_NAMESPACE = "/election";
 
+	private static final String TARGET_ZNODE = "/target_znode";
+
 	public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
 
 		LeaderElection leaderElection = new LeaderElection();
 		leaderElection.connectToZookeeper();
 
 		// changes for leader election
-		leaderElection.volunteerForLeadership();
-		leaderElection.electLeader();
+		// leaderElection.volunteerForLeadership();
+		// leaderElection.electLeader();
 
 		leaderElection.run();
 		leaderElection.close();
 		System.out.println("Disconnected from zookeeper, exiting app");
+
+	}
+
+	public void watchTargetZnode() throws KeeperException, InterruptedException {
+		Stat stat = zooKeeper.exists(TARGET_ZNODE, this);
+		if (stat == null) {
+			return;
+		}
+		byte[] data = zooKeeper.getData(TARGET_ZNODE, this, stat);
+		List<String> children = zooKeeper.getChildren(TARGET_ZNODE, this);
+		System.out.println("Data:  " + new String(data) + " Children are : " + children);
 
 	}
 
@@ -50,6 +64,9 @@ public class LeaderElection implements Watcher {
 		}
 	}
 
+	/**
+	 * To add all the events we are subscribe to
+	 */
 	@Override
 	public void process(WatchedEvent event) {
 		switch (event.getType()) {
@@ -63,7 +80,36 @@ public class LeaderElection implements Watcher {
 				}
 			}
 			break;
+
+		// In exists method of zoo keeper (Method name: watchTargetZnode()) we
+		// register for events of node creation & deletion
+		case NodeDeleted:
+			System.out.println(TARGET_ZNODE + " node deleted");
+			break;
+		case NodeCreated:
+			System.out.println(TARGET_ZNODE + " node created");
+			break;
+		// In getData method of zoo keeper (Method name: watchTargetZnode()) we
+		// register for events of change of data in node
+		case NodeDataChanged:
+			System.out.println(TARGET_ZNODE + " data changed");
+			break;
+
+		// In getChildren method of zoo keeper (Method name: watchTargetZnode())
+		// we register for changes in list of childrens
+		case NodeChildrenChanged:
+			System.out.println(TARGET_ZNODE + " children changed");
+			break;
+
 		}
+
+		// to re register same events again.
+		try {
+			watchTargetZnode();
+		} catch (KeeperException | InterruptedException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	// changes for leader election
