@@ -24,35 +24,14 @@ public class LeaderElection implements Watcher {
 
 		LeaderElection leaderElection = new LeaderElection();
 		leaderElection.connectToZookeeper();
+
+		// changes for leader election
 		leaderElection.volunteerForLeadership();
 		leaderElection.electLeader();
-		leaderElection.run();
 
+		leaderElection.run();
 		leaderElection.close();
 		System.out.println("Disconnected from zookeeper, exiting app");
-
-	}
-
-	public void volunteerForLeadership() throws KeeperException, InterruptedException {
-		String znodePrefix = ELECTION_NAMESPACE + "/c_";
-		String znodeFullPath = zooKeeper.create(znodePrefix, new byte[] {}, ZooDefs.Ids.OPEN_ACL_UNSAFE,
-				CreateMode.EPHEMERAL_SEQUENTIAL);
-
-		System.out.println("znode name : " + znodeFullPath);
-		this.currentZnodeName = znodeFullPath.replace(ELECTION_NAMESPACE + "/", "");
-	}
-
-	public void electLeader() throws KeeperException, InterruptedException {
-		List<String> childrens = zooKeeper.getChildren(ELECTION_NAMESPACE, false);
-
-		Collections.sort(childrens);
-		String smallestChild = childrens.get(0);
-
-		if (smallestChild.equals(currentZnodeName)) {
-			System.out.println(" I am the leader");
-			return;
-		}
-		System.out.println(" I am not the leader. " + smallestChild + " is the leader");
 
 	}
 
@@ -86,4 +65,29 @@ public class LeaderElection implements Watcher {
 			break;
 		}
 	}
+
+	// changes for leader election
+	public void volunteerForLeadership() throws KeeperException, InterruptedException {
+		String znodePrefix = ELECTION_NAMESPACE + "/c_";
+		String znodeFullPath = zooKeeper.create(znodePrefix, new byte[] {}, ZooDefs.Ids.OPEN_ACL_UNSAFE,
+				CreateMode.EPHEMERAL_SEQUENTIAL);
+
+		System.out.println("znode name : " + znodeFullPath);
+		this.currentZnodeName = znodeFullPath.replace(ELECTION_NAMESPACE + "/", "");
+	}
+
+	public void electLeader() throws KeeperException, InterruptedException {
+		List<String> childrens = zooKeeper.getChildren(ELECTION_NAMESPACE, false);
+
+		Collections.sort(childrens);
+		String smallestChild = childrens.get(0);
+
+		if (smallestChild.equals(currentZnodeName)) {
+			System.out.println(" I am the leader");
+			return;
+		}
+		System.out.println(" I am not the leader. " + smallestChild + " is the leader");
+
+	}
+
 }
