@@ -1,0 +1,99 @@
+Learn Distributed Java Applications at Scale, Parallel Programming, Distributed Computing & Cloud Software Architecture:
+
+1.
+E:\Dev\tools\zookeeper\zookeeper-3.4.12\bin>zkServer.cmd
+
+2.
+E:\Dev\tools\zookeeper\zookeeper-3.4.12\bin>zkCli.cmd
+
+3.
+WatchedEvent state:SyncConnected type:None path:null
+[zk: localhost:2181(CONNECTED) 0] create /parent "some parent data"
+[zk: localhost:2181(CONNECTED) 0] ls /
+[parent, zookeeper]
+[zk: localhost:2181(CONNECTED) 1]
+
+4.
+
+WatchedEvent state:SyncConnected type:None path:null
+[zk: localhost:2181(CONNECTED) 0] ls /
+[parent, zookeeper]
+[zk: localhost:2181(CONNECTED) 1] create /parent/child "some child data"
+Created /parent/child
+[zk: localhost:2181(CONNECTED) 2] ls /
+[parent, zookeeper]
+[zk: localhost:2181(CONNECTED) 3] ls /parent
+[child]
+[zk: localhost:2181(CONNECTED) 4]
+
+5.
+[zk: localhost:2181(CONNECTED) 4] get /parent
+some parent data
+cZxid = 0x2
+ctime = Fri Feb 26 16:17:02 IST 2021
+mZxid = 0x2
+mtime = Fri Feb 26 16:17:02 IST 2021
+pZxid = 0x5
+cversion = 1
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 16
+numChildren = 1
+[zk: localhost:2181(CONNECTED) 5]
+
+6.
+[zk: localhost:2181(CONNECTED) 6] get /parent/child
+some child data
+cZxid = 0x5
+ctime = Fri Feb 26 16:19:56 IST 2021
+mZxid = 0x5
+mtime = Fri Feb 26 16:19:56 IST 2021
+pZxid = 0x5
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 15
+numChildren = 0
+
+7. 
+[zk: localhost:2181(CONNECTED) 7] rmr /parent
+[zk: localhost:2181(CONNECTED) 8] ls /
+[zookeeper]
+[zk: localhost:2181(CONNECTED) 9]
+
+8.
+[zk: localhost:2181(CONNECTED) 9] create /election ""
+Created /election
+[zk: localhost:2181(CONNECTED) 10] ls /
+[election, zookeeper]
+[zk: localhost:2181(CONNECTED) 11] get /electon
+Node does not exist: /electon
+[zk: localhost:2181(CONNECTED) 12] get /election
+
+cZxid = 0x8
+ctime = Fri Feb 26 16:22:24 IST 2021
+mZxid = 0x8
+mtime = Fri Feb 26 16:22:24 IST 2021
+pZxid = 0x8
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 0
+
+9.
+Zookeeper created 2 addition threads: 
+	IO thread: has to send  and respond to pings to and from Zookeeper
+	Event Thread : all events coming from zookeeper
+
+
+10.
+For leader election algo: 
+
+open 4 cmds
+go to the following path: /e/Dev/Workspaces/ToptalWorkspace/leader.election
+run the following commands:
+ java -jar target/leader.election-1.0-SNAPSHOT-jar-with-dependencies.jar
